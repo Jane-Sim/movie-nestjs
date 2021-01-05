@@ -8,6 +8,8 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { Movie } from './entities/movie.entity';
+import { MoviesService } from './movies.service';
 
 /** 영화 모듈의 컨트롤러.
  * Get, Post, Delete, Patch를 이용한다.
@@ -18,9 +20,13 @@ import {
 
 @Controller('movies')
 export class MoviesController {
+  // 해당 컨트롤러가 movie service를 사용하기 위해,
+  // construntor에 읽기 형식으로 불러오도록 한다. 보안처리도 한다.
+  constructor(private readonly moviesService: MoviesService) {}
+
   @Get()
-  getAll() {
-    return 'This will return all movies';
+  getAll(): Movie[] {
+    return this.moviesService.getAll();
   }
 
   // movies/search 라는 파라미터가 있을 때, year라고 하는 쿼리값을 가져온다.
@@ -33,21 +39,21 @@ export class MoviesController {
 
   // /movies의 파라미터가 있을 경우, Get API로 캐치한다. ex) example.com/movies/1 (해당 함수 실행 후, 1 값을 파라미터로 가져옴)
   @Get('/:id')
-  getOne(@Param('id') movieId: string) {
-    return `This will return one movie with the id: ${movieId}`;
+  getOne(@Param('id') movieId: string): Movie {
+    return this.moviesService.getOne(movieId);
   }
 
   // @Body 데코레이터는 API의 Body값을 가져오는 기능이다.
   // Body값이 Json이면, Json타입으로 그대로 사용할 수 있다. 따로 Json 설정이 필요없다.
   @Post()
   create(@Body() movieData) {
-    return movieData;
+    return this.moviesService.create(movieData);
   }
 
   // 특정 파라미터의 삭제 API를 캐치한다.
   @Delete('/:id')
   remove(@Param('id') movieId: string) {
-    return `This will delete a movie with the id: ${movieId}`;
+    return this.moviesService.deleteOne(movieId);
   }
 
   // 특정 데이터를 일부 업데이트할 때, Patch API로 캐치한다.
