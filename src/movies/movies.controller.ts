@@ -60,9 +60,6 @@ export class MoviesController {
   // 이때 Parameter와 Body 데코레이터로 원하는 데이터를 가져와 아규먼트로 사용한다.
   @Patch('/:id')
   path(@Param('id') movieId: string, @Body() updateData) {
-    return {
-      updatedMovie: movieId,
-      ...updateData,
-    };
+    return this.moviesService.update(movieId, updateData);
   }
 }
