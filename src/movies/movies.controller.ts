@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movie.entity';
 import { MoviesService } from './movies.service';
 
@@ -60,7 +61,7 @@ export class MoviesController {
   // 특정 데이터를 일부 업데이트할 때, Patch API로 캐치한다.
   // 이때 Parameter와 Body 데코레이터로 원하는 데이터를 가져와 아규먼트로 사용한다.
   @Patch('/:id')
-  path(@Param('id') movieId: number, @Body() updateData) {
+  path(@Param('id') movieId: number, @Body() updateData: UpdateMovieDto) {
     return this.moviesService.update(movieId, updateData);
   }
 }
