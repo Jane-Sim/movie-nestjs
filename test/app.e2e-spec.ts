@@ -42,7 +42,7 @@ describe('AppController (e2e)', () => {
       return request(app.getHttpServer()).get('/movies').expect(200).expect([]);
     });
     //post로 데이터를 보낼 땐, send함수로 데이터를 먼저 보내고, 그 다음 201 상태값을 받아야한다.
-    it('POST', () => {
+    it('POST 201', () => {
       return request(app.getHttpServer())
         .post('/movies')
         .send({
@@ -51,6 +51,17 @@ describe('AppController (e2e)', () => {
           genres: ['test'],
         })
         .expect(201);
+    });
+    it('POST 400', () => {
+      return request(app.getHttpServer())
+        .post('/movies')
+        .send({
+          title: 'Test',
+          year: 2000,
+          genres: ['test'],
+          other: 'thing',
+        })
+        .expect(400);
     });
     // 없는 데이터를 삭제할 때, Not Found인 404 상태값이 나오는지 확인하자.
     it('DELETE', () => {
@@ -66,7 +77,14 @@ describe('AppController (e2e)', () => {
     it('GET 404', () => {
       return request(app.getHttpServer()).get('/movies/999').expect(404);
     });
-    it.todo('/DELETE');
-    it.todo('/PATCh');
+    it('PATCH 200', () => {
+      return request(app.getHttpServer())
+        .patch('/movies/1')
+        .send({ title: 'Updated Test' })
+        .expect(200);
+    });
+    it('DELETE 200', () => {
+      return request(app.getHttpServer()).delete('/movies/1').expect(200);
+    });
   });
 });
