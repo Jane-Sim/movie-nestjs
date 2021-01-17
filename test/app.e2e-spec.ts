@@ -1,17 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  // beforeach는 각 테스트를 시작하기 전에 해당 코드를 실행시키라는뜻이다.
+  // 즉, describe, it의 테스트를 진행할 때마다 테스트 어플리케이션을 생성하는 것이다.
+  // describe, it의 테스트가 10개면, 10개의 어플리케이션이 생성된다.
+  // 어플리케이션이 각각 있으니, 데이터도 쌓이지 않는다.
+  // beforeAll로 변경해서 어플리케이션은 1개만 만들고, 해당 어플리케이션에 describe('/movies' 의 it('POST')로 생성한 데이터를 계속 갖도록 만들자
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    // 테스트 어플리케이션은 꼭 실제 테스트용 어플리케이션과 일치한 환경으로 만들어주자.
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
     await app.init();
   });
 
@@ -43,5 +56,17 @@ describe('AppController (e2e)', () => {
     it('DELETE', () => {
       return request(app.getHttpServer()).delete('/movies').expect(404);
     });
+  });
+
+  // 위에서 생성한 테이터를 잘 가져오는지, 못 가져오는지 테스트해보자.
+  describe('/movies/:d', () => {
+    it('GET 200', () => {
+      return request(app.getHttpServer()).get('/movies/1').expect(200);
+    });
+    it('GET 404', () => {
+      return request(app.getHttpServer()).get('/movies/999').expect(404);
+    });
+    it.todo('/DELETE');
+    it.todo('/PATCh');
   });
 });
